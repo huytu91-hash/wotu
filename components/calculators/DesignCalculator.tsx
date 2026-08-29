@@ -4,154 +4,163 @@ import React, { useState } from 'react';
 import { PricingEngine } from '@/lib/pricing-engine';
 import { DesignCalculationResult } from '@/types';
 import { formatCurrency } from '@/lib/utils';
-import { CheckCircle2, Calculator } from 'lucide-react';
+import { CheckCircle2, Calculator, Sparkles, ArrowRight } from 'lucide-react';
 
 export default function DesignCalculator() {
   const [packageId, setPackageId] = useState<'g1' | 'g2' | 'g3'>('g2');
-  const [area, setArea] = useState<number>(80);
-  const [result, setResult] = useState<DesignCalculationResult | null>(null);
+  const [area, setArea] = useState<number>(85);
+  const [result, setResult] = useState<DesignCalculationResult | null>(
+    PricingEngine.calculateDesign({ packageId: 'g2', areaSqm: 85 })
+  );
 
-  const handleCalculate = () => {
-    if (area <= 0) return;
-    const res = PricingEngine.calculateDesign({ packageId, areaSqm: area });
+  const handleCalculate = (newPkg: 'g1' | 'g2' | 'g3', newArea: number) => {
+    const res = PricingEngine.calculateDesign({ packageId: newPkg, areaSqm: newArea });
     setResult(res);
   };
 
   return (
-    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 text-white max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold text-red-500 mb-6 flex items-center gap-2">
-        <Calculator className="w-6 h-6" /> CHI PHÍ THIẾT KẾ
-      </h2>
+    <div className="bg-neutral-900/80 border border-neutral-800/80 backdrop-blur-xl rounded-3xl p-6 md:p-8 text-white max-w-4xl mx-auto shadow-2xl shadow-black">
+      <div className="flex items-center gap-3 mb-8 border-b border-neutral-800 pb-6">
+        <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl">
+          <Calculator className="w-6 h-6" />
+        </div>
+        <div>
+          <h2 className="text-xl font-extrabold tracking-wide">DỰ TOÁN CHI PHÍ THIẾT KẾ</h2>
+          <p className="text-xs text-neutral-400 mt-0.5">Chọn gói dịch vụ và nhập diện tích để nhận báo giá chi tiết tức thì.</p>
+        </div>
+      </div>
 
-      {/* CHỌN GÓI */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      {/* CHỌN GÓI THIẾT KẾ */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         {[
           {
             id: 'g1',
             title: 'GÓI 1 – TIẾT KIỆM',
-            price: '79.000đ/m²',
-            items: ['2D công năng', '3D nội thất'],
+            price: '79.000đ',
+            desc: 'Phù hợp căn hộ nhỏ, cải tạo nhanh',
+            items: ['2D công năng mặt bằng', '3D phối cảnh nội thất cơ bản'],
           },
           {
             id: 'g2',
             title: 'GÓI 2 – CƠ BẢN',
-            price: '119.000đ/m²',
-            items: [
-              'Toàn bộ Gói 1',
-              '2D chi tiết kích thước',
-              'Chỉ định vật liệu nội thất',
-              '2D ổ cắm điện nước',
-            ],
+            price: '119.000đ',
+            desc: 'Được lựa chọn nhiều nhất',
+            items: ['Toàn bộ Gói 1', '2D chi tiết kích thước kỹ thuật', 'Chỉ định vật liệu, ánh sáng', 'Bản vẽ điện nước (ME)'],
           },
           {
             id: 'g3',
             title: 'GÓI 3 – HOÀN THIỆN',
-            price: '179.000đ/m²',
-            items: [
-              'Toàn bộ Gói 2',
-              'Kết cấu xây dựng',
-              'Hồ sơ hoàn chỉnh',
-              '3D mặt đứng / mặt tiền',
-            ],
+            price: '179.000đ',
+            desc: 'Giải pháp toàn diện cao cấp',
+            items: ['Toàn bộ Gói 2', 'Hồ sơ kết cấu & kiến trúc', '3D mặt tiền/ngoại thất', 'Giám sát tác giả thiết kế'],
           },
-        ].map((pkg) => (
-          <div
-            key={pkg.id}
-            onClick={() => setPackageId(pkg.id as any)}
-            className={`cursor-pointer p-5 rounded-xl border transition-all ${
-              packageId === pkg.id
-                ? 'border-red-500 bg-red-950/20 shadow-lg shadow-red-900/20'
-                : 'border-neutral-800 bg-neutral-800/50 hover:border-neutral-700'
-            }`}
-          >
-            <h3 className="font-bold text-lg mb-1">{pkg.title}</h3>
-            <p className="text-red-400 font-extrabold text-xl mb-4">{pkg.price}</p>
-            <ul className="space-y-2 text-xs text-neutral-300">
-              {pkg.items.map((item, idx) => (
-                <li key={idx} className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        ].map((pkg) => {
+          const isSelected = packageId === pkg.id;
+          return (
+            <div
+              key={pkg.id}
+              onClick={() => {
+                setPackageId(pkg.id as any);
+                handleCalculate(pkg.id as any, area);
+              }}
+              className={`cursor-pointer p-5 rounded-2xl border transition-all relative flex flex-col justify-between ${
+                isSelected
+                  ? 'bg-gradient-to-b from-red-950/30 to-neutral-900 border-red-500 shadow-xl shadow-red-950/40 ring-1 ring-red-500'
+                  : 'bg-neutral-900/40 border-neutral-800/80 hover:border-neutral-700 hover:bg-neutral-900'
+              }`}
+            >
+              {isSelected && (
+                <span className="absolute -top-3 right-4 bg-red-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-md">
+                  Đang chọn
+                </span>
+              )}
+              <div>
+                <h3 className="font-bold text-sm tracking-wide text-neutral-200 mb-1">{pkg.title}</h3>
+                <div className="flex items-baseline gap-1 my-2">
+                  <span className="text-2xl font-black text-red-500">{pkg.price}</span>
+                  <span className="text-xs text-neutral-400">/ m²</span>
+                </div>
+                <p className="text-[11px] text-neutral-400 mb-4">{pkg.desc}</p>
+                <ul className="space-y-2.5 text-xs text-neutral-300 border-t border-neutral-800/60 pt-4">
+                  {pkg.items.map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
+                      <span className="leading-tight">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* INPUT DIỆN TÍCH */}
-      <div className="bg-neutral-800/60 p-5 rounded-xl border border-neutral-700 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div className="w-full md:w-1/2">
-          <label className="block text-sm font-medium mb-1 text-neutral-300">
+      <div className="bg-neutral-950/60 p-5 rounded-2xl border border-neutral-800/80 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="w-full md:w-2/3">
+          <label className="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">
             Tổng diện tích sàn thiết kế (m²) <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
             value={area}
-            onChange={(e) => setArea(Number(e.target.value))}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              setArea(val);
+              handleCalculate(packageId, val);
+            }}
             min={1}
-            className="w-full px-4 py-2.5 bg-neutral-900 border border-neutral-700 rounded-xl focus:outline-none focus:border-red-500 font-bold text-lg"
+            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-700/80 rounded-xl focus:outline-none focus:border-red-500 font-bold text-xl text-white tracking-wide"
           />
         </div>
-        <button
-          onClick={handleCalculate}
-          className="w-full md:w-auto px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition duration-200 mt-2 md:mt-6"
-        >
-          Tính toán chi phí
-        </button>
+        <div className="w-full md:w-1/3 text-right hidden md:block">
+          <span className="text-xs text-neutral-500 block">Hệ thống tự động tính</span>
+          <span className="text-xs font-semibold text-emerald-400">Đã cập nhật kết quả</span>
+        </div>
       </div>
 
-      {/* KẾT QUẢ TÍNH TOÁN */}
+      {/* KẾT QUẢ TÍNH TOÁN (LUÔN HIỂN THỊ SANG TRỌNG) */}
       {result && (
-        <div className="bg-neutral-950 border border-red-900/50 p-6 rounded-xl space-y-3 animate-fade-in">
-          <h4 className="text-lg font-bold text-white border-b border-neutral-800 pb-2">
-            BÁO GIÁ DỰ KIẾN ({result.packageName})
-          </h4>
-          <div className="flex justify-between text-neutral-300 text-sm">
-            <span>Đơn giá cơ bản:</span>
-            <span>{formatCurrency(result.pricePerSqm)} / m²</span>
+        <div className="bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 border border-red-500/30 p-6 md:p-8 rounded-2xl space-y-4 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/5 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="flex justify-between items-center border-b border-neutral-800 pb-4">
+            <div>
+              <span className="text-xs text-red-400 font-semibold uppercase tracking-wider">Bảng giá chi tiết</span>
+              <h4 className="text-lg font-extrabold text-white mt-0.5">{result.packageName}</h4>
+            </div>
+            <div className="text-right">
+              <span className="text-xs text-neutral-400">Đơn giá: </span>
+              <span className="text-sm font-bold text-white">{formatCurrency(result.pricePerSqm)}/m²</span>
+            </div>
           </div>
-          <div className="flex justify-between text-neutral-300 text-sm">
-            <span>Tổng diện tích:</span>
-            <span>{result.areaSqm} m²</span>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-2">
+            <div className="bg-neutral-900/60 p-3.5 rounded-xl border border-neutral-800">
+              <span className="text-xs text-neutral-400 block mb-1">Diện tích khảo sát</span>
+              <span className="text-lg font-bold text-white">{result.areaSqm} m²</span>
+            </div>
+            <div className="bg-neutral-900/60 p-3.5 rounded-xl border border-neutral-800">
+              <span className="text-xs text-neutral-400 block mb-1">Thành tiền trước thuế</span>
+              <span className="text-lg font-bold text-white">{formatCurrency(result.subtotal)}</span>
+            </div>
+            <div className="bg-neutral-900/60 p-3.5 rounded-xl border border-neutral-800">
+              <span className="text-xs text-neutral-400 block mb-1">Thuế VAT (10%)</span>
+              <span className="text-lg font-bold text-amber-400">{formatCurrency(result.vatAmount)}</span>
+            </div>
           </div>
-          <div className="flex justify-between text-neutral-300 text-sm">
-            <span>Thành tiền trước VAT:</span>
-            <span className="font-semibold text-white">{formatCurrency(result.subtotal)}</span>
-          </div>
-          <div className="flex justify-between text-neutral-300 text-sm">
-            <span>Thuế VAT (10%):</span>
-            <span className="text-amber-400">+{formatCurrency(result.vatAmount)}</span>
-          </div>
-          <div className="border-t border-neutral-800 pt-3 flex justify-between items-center text-lg font-bold">
-            <span className="text-white">TỔNG THANH TOÁN:</span>
-            <span className="text-red-500 text-2xl">{formatCurrency(result.grandTotal)}</span>
+
+          <div className="border-t border-neutral-800/80 pt-4 flex flex-col md:flex-row justify-between items-center gap-4 bg-red-950/20 -mx-6 md:-mx-8 -mb-6 md:-mb-8 p-6 md:p-8 border-x-0 border-b-0">
+            <div>
+              <span className="text-xs uppercase tracking-wider text-neutral-400 block">Tổng chi phí dự kiến trọn gói</span>
+              <span className="text-xs text-neutral-500">Đã bao gồm VAT và hồ sơ tiêu chuẩn WOTU</span>
+            </div>
+            <div className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-400">
+              {formatCurrency(result.grandTotal)}
+            </div>
           </div>
         </div>
       )}
-
-      {/* QUY TRÌNH THIẾT KẾ WOTU */}
-      <div className="mt-10 border-t border-neutral-800 pt-8">
-        <h3 className="text-xl font-bold mb-6 text-center text-neutral-200">
-          Quy trình thiết kế WOTU
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            '1. Tiếp nhận thông tin & ký hợp đồng. Thu tiền tạm ứng theo thỏa thuận.',
-            '2. Khảo sát hiện trạng thực tế.',
-            '3. Triển khai thiết kế theo gói khách đã chọn.',
-            '4. Gửi bản thiết kế cho khách duyệt.',
-            '5. Chỉnh sửa theo góp ý (Tối đa 3 lần chỉnh sửa).',
-            '6. Bàn giao hồ sơ thiết kế hoàn chỉnh (File mềm + Bản in).',
-          ].map((step, idx) => (
-            <div
-              key={idx}
-              className="p-4 bg-neutral-800/40 border border-neutral-800 rounded-xl text-xs text-neutral-300 leading-relaxed"
-            >
-              {step}
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
