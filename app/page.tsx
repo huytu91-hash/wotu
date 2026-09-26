@@ -42,6 +42,7 @@ export default function Home() {
               Enterprise Estimator
             </span>
           </div>
+          <a href="/ai-quote" className="text-xs font-bold px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white">✨ AI Báo giá</a>
           <div className="text-xs text-neutral-400 flex items-center gap-2 bg-neutral-900/60 border border-neutral-800/80 px-3 py-1.5 rounded-xl">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Khách hàng: <strong className="text-white">{customer?.fullName}</strong></span>
