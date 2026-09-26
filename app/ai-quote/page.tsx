@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { applyChat, parseRequest, QuoteState, totals } from "@/lib/ai-quote-engine";
+import { useEffect, useState } from "react";
+import { applyChat, parseRequest, QuoteItem, QuoteState, recalc, totals } from "@/lib/ai-quote-engine";
 import { Bot, FileDown, Send, Sparkles, History, Plus, X, ImagePlus, Save } from "lucide-react";
 
 type Version={id:number;quote:QuoteState;label:string};
